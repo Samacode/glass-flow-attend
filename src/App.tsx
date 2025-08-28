@@ -16,6 +16,10 @@ import { SetQuiz } from "./pages/instructor/SetQuiz";
 import { ScheduleCourse } from "./pages/instructor/ScheduleCourse";
 import { Complaints } from "./pages/instructor/Complaints";
 import { ApproveEdits } from "./pages/instructor/ApproveEdits";
+import { QuickCheckIn } from "./pages/student/QuickCheckIn";
+import { Progress } from "./pages/student/Progress";
+import { Schedule } from "./pages/student/Schedule";
+import { StudentProfile } from "./pages/student/Profile";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +42,10 @@ const App = () => (
             <Route path="/instructor/schedule-course" element={<ScheduleCourse />} />
             <Route path="/instructor/complaints" element={<Complaints />} />
             <Route path="/instructor/approve-edits" element={<ApproveEdits />} />
+            <Route path="/student/quick-checkin" element={<QuickCheckIn />} />
+            <Route path="/student/progress" element={<Progress />} />
+            <Route path="/student/schedule" element={<Schedule />} />
+            <Route path="/student/profile" element={<StudentProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
