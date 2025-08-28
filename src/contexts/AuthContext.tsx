@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!foundUser) {
         toast({
           title: "Login Failed",
-          description: "Invalid email or password",
+          description: "Invalid user - No account found with this email",
           variant: "destructive"
         });
         return false;
