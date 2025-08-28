@@ -6,6 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
+import { validateEmail } from '@/lib/emailValidation';
+import { db } from '@/lib/database';
+import { toast } from '@/hooks/use-toast';
 
 export const RegisterForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -20,13 +23,53 @@ export const RegisterForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [departments, setDepartments] = useState<string[]>([]);
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  // Load departments on component mount
+  React.useEffect(() => {
+    const loadDepartments = async () => {
+      try {
+        const depts = await db.departments.toArray();
+        setDepartments(depts.map(d => d.name));
+      } catch (error) {
+        console.error('Error loading departments:', error);
+      }
+    };
+    loadDepartments();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate email domain
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      toast({
+        title: "Invalid Email",
+        description: emailValidation.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate required department
+    if (!formData.department) {
+      toast({
+        title: "Department Required",
+        description: "Please select a department",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -38,7 +81,7 @@ export const RegisterForm: React.FC = () => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       role: formData.role,
-      department: formData.department || undefined,
+      department: formData.department,
       isApproved: formData.role !== 'instructor'
     });
 
@@ -112,14 +155,17 @@ export const RegisterForm: React.FC = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="department" className="text-glass-foreground font-medium">Department (Optional)</Label>
-        <Input
-          id="department"
-          value={formData.department}
-          onChange={(e) => handleInputChange('department', e.target.value)}
-          placeholder="Computer Science"
-          className="glass border-glass-border/30 bg-glass/5 text-glass-foreground placeholder:text-muted-foreground"
-        />
+        <Label htmlFor="department" className="text-glass-foreground font-medium">Department *</Label>
+        <Select value={formData.department} onValueChange={(value) => handleInputChange('department', value)} required>
+          <SelectTrigger className="glass border-glass-border/30 bg-glass/5 text-glass-foreground">
+            <SelectValue placeholder="Select your department" />
+          </SelectTrigger>
+          <SelectContent className="glass border-glass-border/30 bg-glass text-glass-foreground">
+            {departments.map((dept) => (
+              <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-4">
@@ -179,7 +225,7 @@ export const RegisterForm: React.FC = () => {
         type="submit"
         variant="primary"
         size="lg"
-        disabled={isLoading || formData.password !== formData.confirmPassword}
+        disabled={isLoading || formData.password !== formData.confirmPassword || !formData.department}
         className="w-full"
       >
         {isLoading ? (

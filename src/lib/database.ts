@@ -141,6 +141,44 @@ export interface Settings {
   updatedAt: string;
 }
 
+// Message Types
+export interface Message {
+  id?: number;
+  senderId: number;
+  receiverId: number;
+  type: 'complaint' | 'profile_edit_request' | 'general';
+  subject: string;
+  content: string;
+  status: 'pending' | 'read' | 'resolved';
+  metadata?: any; // For storing additional data like profile edit details
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Course Enrollment Types
+export interface CourseEnrollment {
+  id?: number;
+  studentId: number;
+  courseId: number;
+  enrolledAt: string;
+  grade?: string;
+  attendanceRate: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Ban Types
+export interface Ban {
+  id?: number;
+  userId: number;
+  bannedBy: number;
+  reason: string;
+  expiresAt: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Database Class
 export class AttendanceDB extends Dexie {
   users!: Table<User>;
@@ -153,11 +191,14 @@ export class AttendanceDB extends Dexie {
   quizzes!: Table<Quiz>;
   quizSubmissions!: Table<QuizSubmission>;
   settings!: Table<Settings>;
+  messages!: Table<Message>;
+  courseEnrollments!: Table<CourseEnrollment>;
+  bans!: Table<Ban>;
 
   constructor() {
     super('AttendanceDB');
     
-    this.version(1).stores({
+    this.version(2).stores({
       users: '++id, email, role, isApproved, createdAt',
       courses: '++id, instructorId, departmentId, createdAt',
       departments: '++id, name, code, createdAt',
@@ -167,7 +208,10 @@ export class AttendanceDB extends Dexie {
       questions: '++id, bankId, type, createdAt',
       quizzes: '++id, sessionId, instructorId, isActive, createdAt',
       quizSubmissions: '++id, quizId, studentId, isCompleted, createdAt',
-      settings: '++id, key, updatedAt'
+      settings: '++id, key, updatedAt',
+      messages: '++id, senderId, receiverId, type, status, createdAt',
+      courseEnrollments: '++id, studentId, courseId, createdAt',
+      bans: '++id, userId, bannedBy, isActive, expiresAt, createdAt'
     });
 
     // Hook to automatically add timestamps
@@ -182,7 +226,8 @@ export class AttendanceDB extends Dexie {
 
     // Similar hooks for other tables
     [this.courses, this.departments, this.classSessions, this.attendanceRecords, 
-     this.questionBanks, this.questions, this.quizzes, this.quizSubmissions].forEach(table => {
+     this.questionBanks, this.questions, this.quizzes, this.quizSubmissions,
+     this.messages, this.courseEnrollments, this.bans].forEach(table => {
       table.hook('creating', (primKey, obj, trans) => {
         obj.createdAt = new Date().toISOString();
         obj.updatedAt = new Date().toISOString();
@@ -232,6 +277,29 @@ export class AttendanceDB extends Dexie {
           updatedAt: new Date().toISOString()
         }
       ]);
+
+      // Create default departments/courses
+      const departments = [
+        'Computer Science',
+        'Engineering',
+        'Business Administration',
+        'Medicine',
+        'Law',
+        'Arts and Humanities',
+        'Natural Sciences',
+        'Social Sciences',
+        'Education',
+        'Nursing'
+      ];
+
+      for (const dept of departments) {
+        await this.departments.add({
+          name: dept,
+          code: dept.replace(/\s+/g, '').substring(0, 4).toUpperCase(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
     }
   }
 }

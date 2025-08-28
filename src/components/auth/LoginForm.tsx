@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { validateEmail } from '@/lib/emailValidation';
+import { toast } from '@/hooks/use-toast';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +18,18 @@ export const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate email domain (unless it's admin)
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      toast({
+        title: "Invalid Email",
+        description: emailValidation.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     const success = await login(email, password);

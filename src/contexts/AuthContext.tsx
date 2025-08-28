@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { db, User } from '@/lib/database';
+import { db, User, Ban } from '@/lib/database';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -54,6 +54,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkStoredSession();
   }, []);
 
+  // Check if user is banned
+  const checkUserBan = async (userId: number): Promise<boolean> => {
+    try {
+      const activeBan = await db.bans
+        .where('userId')
+        .equals(userId)
+        .and(ban => ban.isActive && new Date(ban.expiresAt) > new Date())
+        .first();
+      
+      return !!activeBan;
+    } catch (error) {
+      console.error('Error checking user ban:', error);
+      return false;
+    }
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const foundUser = await db.users.where('email').equals(email).first();
@@ -61,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!foundUser) {
         toast({
           title: "Login Failed",
-          description: "Invalid email or password",
+          description: "Invalid user. Please check your credentials or create an account.",
           variant: "destructive"
         });
         return false;
@@ -82,6 +98,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         toast({
           title: "Account Pending",
           description: "Your instructor account is pending admin approval",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // Check if user is banned
+      const isBanned = await checkUserBan(foundUser.id!);
+      if (isBanned) {
+        toast({
+          title: "Account Suspended",
+          description: "Your account has been temporarily suspended. Please contact support.",
           variant: "destructive"
         });
         return false;
@@ -207,10 +234,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // Delete user and related data
-      await db.transaction('rw', [db.users, db.attendanceRecords, db.quizSubmissions], async () => {
+      await db.transaction('rw', [db.users, db.attendanceRecords, db.quizSubmissions, db.messages, db.courseEnrollments, db.bans], async () => {
         // Delete related records
         await db.attendanceRecords.where('studentId').equals(user.id!).delete();
         await db.quizSubmissions.where('studentId').equals(user.id!).delete();
+        await db.messages.where('senderId').equals(user.id!).delete();
+        await db.messages.where('receiverId').equals(user.id!).delete();
+        await db.courseEnrollments.where('studentId').equals(user.id!).delete();
+        await db.bans.where('userId').equals(user.id!).delete();
         
         // Delete user
         await db.users.delete(user.id!);

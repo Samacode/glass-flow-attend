@@ -3,22 +3,58 @@ import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Users, School, Settings, BarChart3, Shield, Bell } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { db } from '@/lib/database';
 
 export const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [stats, setStats] = React.useState({
+    totalUsers: 0,
+    activeCourses: 0,
+    sessionsToday: 0,
+    pendingApprovals: 0
+  });
 
-  const stats = [
-    { label: 'Total Users', value: '1,234', icon: Users, color: 'text-primary' },
-    { label: 'Active Courses', value: '89', icon: School, color: 'text-accent' },
-    { label: 'Sessions Today', value: '23', icon: BarChart3, color: 'text-success' },
-    { label: 'Pending Approvals', value: '7', icon: Bell, color: 'text-warning' },
+  React.useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const totalUsers = await db.users.where('role').anyOf(['student', 'instructor']).count();
+      const activeCourses = await db.courses.count();
+      
+      const today = new Date().toISOString().split('T')[0];
+      const sessionsToday = await db.classSessions.where('date').equals(today).count();
+      
+      const pendingApprovals = await db.users
+        .where('role').equals('instructor')
+        .and(user => !user.isApproved)
+        .count();
+
+      setStats({
+        totalUsers,
+        activeCourses,
+        sessionsToday,
+        pendingApprovals
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
+
+  const statsDisplay = [
+    { label: 'Total Users', value: stats.totalUsers.toString(), icon: Users, color: 'text-primary' },
+    { label: 'Active Courses', value: stats.activeCourses.toString(), icon: School, color: 'text-accent' },
+    { label: 'Sessions Today', value: stats.sessionsToday.toString(), icon: BarChart3, color: 'text-success' },
+    { label: 'Pending Approvals', value: stats.pendingApprovals.toString(), icon: Bell, color: 'text-warning' },
   ];
 
   const quickActions = [
-    { label: 'User Management', icon: Users, href: '/admin/users' },
-    { label: 'System Settings', icon: Settings, href: '/admin/settings' },
-    { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
-    { label: 'Security', icon: Shield, href: '/admin/security' },
+    { label: 'User Management', icon: Users, href: '/user-management' },
+    { label: 'System Settings', icon: Settings, href: '/system-settings' },
+    { label: 'Analytics', icon: BarChart3, href: '/analytics' },
+    { label: 'Security', icon: Shield, href: '/security' },
   ];
 
   return (
@@ -32,7 +68,9 @@ export const AdminDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="outline">Profile</Button>
+          <Link to="/admin-profile">
+            <Button variant="outline">Profile</Button>
+          </Link>
           <Button variant="destructive" onClick={logout}>
             Logout
           </Button>
@@ -41,7 +79,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
+        {statsDisplay.map((stat, index) => (
           <GlassCard key={index} variant="intense" className="text-center">
             <div className="flex items-center justify-center mb-4">
               <div className={`p-3 rounded-xl glass ${stat.color}`}>
@@ -59,18 +97,20 @@ export const AdminDashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {quickActions.map((action, index) => (
-          <GlassCard key={index} variant="glow" className="glass-hover cursor-pointer">
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-4 rounded-2xl bg-gradient-primary text-primary-foreground">
-                  <action.icon size={28} />
+          <Link key={index} to={action.href}>
+            <GlassCard variant="glow" className="glass-hover cursor-pointer">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-4 rounded-2xl bg-gradient-primary text-primary-foreground">
+                    <action.icon size={28} />
+                  </div>
                 </div>
+                <h3 className="text-lg font-semibold text-glass-foreground">
+                  {action.label}
+                </h3>
               </div>
-              <h3 className="text-lg font-semibold text-glass-foreground">
-                {action.label}
-              </h3>
-            </div>
-          </GlassCard>
+            </GlassCard>
+          </Link>
         ))}
       </div>
 
@@ -118,7 +158,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-glass-foreground">Active Sessions</span>
-              <span className="text-glass-foreground text-sm">1,024</span>
+              <span className="text-glass-foreground text-sm">{stats.totalUsers}</span>
             </div>
           </div>
         </GlassCard>
