@@ -14,28 +14,8 @@ export const LoginForm: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const validateEmail = (email: string): boolean => {
-    const officialDomains = [
-      '@gmail.com', '@yahoo.com', '@outlook.com', '@hotmail.com',
-      '@university.edu', '@school.edu', '@student.edu', '@academic.edu'
-    ];
-    
-    // Allow admin email to pass through
-    if (email === 'admin@attendance.local') {
-      return true;
-    }
-    
-    return officialDomains.some(domain => email.toLowerCase().endsWith(domain));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateEmail(email)) {
-      alert('Please use an official email domain (gmail.com, yahoo.com, outlook.com, etc.)');
-      return;
-    }
-    
     setIsLoading(true);
 
     const success = await login(email, password);

@@ -23,34 +23,10 @@ export const RegisterForm: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const validateEmail = (email: string): boolean => {
-    const officialDomains = [
-      '@gmail.com', '@yahoo.com', '@outlook.com', '@hotmail.com',
-      '@university.edu', '@school.edu', '@student.edu', '@academic.edu'
-    ];
-    
-    // Allow admin email to pass through
-    if (email === 'admin@attendance.local') {
-      return true;
-    }
-    
-    return officialDomains.some(domain => email.toLowerCase().endsWith(domain));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      return;
-    }
-
-    if (!validateEmail(formData.email)) {
-      alert('Please use an official email domain (gmail.com, yahoo.com, outlook.com, etc.)');
-      return;
-    }
-
-    if (!formData.department) {
-      alert('Please select a department');
       return;
     }
 
@@ -136,32 +112,14 @@ export const RegisterForm: React.FC = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="department" className="text-glass-foreground font-medium">Department *</Label>
-        <Select value={formData.department} onValueChange={(value) => handleInputChange('department', value)} required>
-          <SelectTrigger className="glass border-glass-border/30 bg-glass/5 text-glass-foreground">
-            <SelectValue placeholder="Select your department" />
-          </SelectTrigger>
-          <SelectContent className="glass border-glass-border/30 bg-glass text-glass-foreground">
-            <SelectItem value="Computer Science">Computer Science</SelectItem>
-            <SelectItem value="Engineering">Engineering</SelectItem>
-            <SelectItem value="Business Administration">Business Administration</SelectItem>
-            <SelectItem value="Mathematics">Mathematics</SelectItem>
-            <SelectItem value="Physics">Physics</SelectItem>
-            <SelectItem value="Chemistry">Chemistry</SelectItem>
-            <SelectItem value="Biology">Biology</SelectItem>
-            <SelectItem value="Psychology">Psychology</SelectItem>
-            <SelectItem value="Economics">Economics</SelectItem>
-            <SelectItem value="Political Science">Political Science</SelectItem>
-            <SelectItem value="English Literature">English Literature</SelectItem>
-            <SelectItem value="History">History</SelectItem>
-            <SelectItem value="Art & Design">Art & Design</SelectItem>
-            <SelectItem value="Music">Music</SelectItem>
-            <SelectItem value="Law">Law</SelectItem>
-            <SelectItem value="Medicine">Medicine</SelectItem>
-            <SelectItem value="Nursing">Nursing</SelectItem>
-            <SelectItem value="Education">Education</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="department" className="text-glass-foreground font-medium">Department (Optional)</Label>
+        <Input
+          id="department"
+          value={formData.department}
+          onChange={(e) => handleInputChange('department', e.target.value)}
+          placeholder="Computer Science"
+          className="glass border-glass-border/30 bg-glass/5 text-glass-foreground placeholder:text-muted-foreground"
+        />
       </div>
 
       <div className="space-y-4">
