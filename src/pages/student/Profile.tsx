@@ -227,7 +227,7 @@ export const StudentProfile: React.FC = () => {
             <div className="bg-warning/10 border border-warning/20 rounded-lg p-4">
               <p className="text-sm text-warning">
                 <strong>Note:</strong> To edit your profile information, you need approval from your instructors. 
-                Click "Request Edit" to send a request with your reason for the changes.
+                Click "Request Edit\" to send a request with your reason for the changes.
               </p>
             </div>
           </div>
