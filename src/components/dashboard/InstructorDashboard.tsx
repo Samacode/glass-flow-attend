@@ -2,16 +2,109 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, BookOpen, Plus, BarChart3, Clock } from 'lucide-react';
+import { Calendar, Users, BookOpen, Plus, BarChart3, Clock, MessageSquare, UserCheck, ClipboardList, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { db } from '@/lib/database';
 
 export const InstructorDashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [stats, setStats] = React.useState({
+    activeCourses: 0,
+    totalStudents: 0,
+    sessionsThisWeek: 0,
+    avgAttendance: 0,
+    pendingComplaints: 0,
+    pendingEditRequests: 0
+  });
 
-  const stats = [
-    { label: 'Active Courses', value: '4', icon: BookOpen, color: 'text-primary' },
-    { label: 'Total Students', value: '156', icon: Users, color: 'text-accent' },
-    { label: 'Sessions This Week', value: '12', icon: Calendar, color: 'text-success' },
-    { label: 'Avg. Attendance', value: '87%', icon: BarChart3, color: 'text-warning' },
+  React.useEffect(() => {
+    loadStats();
+  }, [user]);
+
+  const loadStats = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const activeCourses = await db.courses.where('instructorId').equals(user.id).count();
+      
+      // Get enrolled students count across all instructor's courses
+      const instructorCourses = await db.courses.where('instructorId').equals(user.id).toArray();
+      const courseIds = instructorCourses.map(c => c.id!);
+      const totalStudents = await db.courseEnrollments.where('courseId').anyOf(courseIds).count();
+      
+      // Get sessions this week
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      const sessionsThisWeek = await db.classSessions
+        .where('instructorId').equals(user.id)
+        .and(session => {
+          const sessionDate = new Date(session.date);
+          return sessionDate >= weekStart && sessionDate <= weekEnd;
+        })
+        .count();
+
+      // Calculate average attendance
+      const allSessions = await db.classSessions.where('instructorId').equals(user.id).toArray();
+      let totalAttendanceRate = 0;
+      let sessionCount = 0;
+
+      for (const session of allSessions) {
+        const totalRecords = await db.attendanceRecords.where('sessionId').equals(session.id!).count();
+        const presentRecords = await db.attendanceRecords
+          .where('sessionId').equals(session.id!)
+          .and(record => record.status === 'present')
+          .count();
+        
+        if (totalRecords > 0) {
+          totalAttendanceRate += (presentRecords / totalRecords) * 100;
+          sessionCount++;
+        }
+      }
+
+      const avgAttendance = sessionCount > 0 ? Math.round(totalAttendanceRate / sessionCount) : 0;
+
+      // Get pending complaints
+      const pendingComplaints = await db.messages
+        .where('receiverId').equals(user.id)
+        .and(msg => msg.status === 'pending' && msg.type === 'complaint')
+        .count();
+
+      // Get pending edit requests
+      const pendingEditRequests = await db.messages
+        .where('receiverId').equals(user.id)
+        .and(msg => msg.status === 'pending' && msg.type === 'profile_edit_request')
+        .count();
+
+      setStats({
+        activeCourses,
+        totalStudents,
+        sessionsThisWeek,
+        avgAttendance,
+        pendingComplaints,
+        pendingEditRequests
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
+
+  const statsDisplay = [
+    { label: 'Active Courses', value: stats.activeCourses.toString(), icon: BookOpen, color: 'text-primary' },
+    { label: 'Total Students', value: stats.totalStudents.toString(), icon: Users, color: 'text-accent' },
+    { label: 'Sessions This Week', value: stats.sessionsThisWeek.toString(), icon: Calendar, color: 'text-success' },
+    { label: 'Avg. Attendance', value: `${stats.avgAttendance}%`, icon: BarChart3, color: 'text-warning' },
+  ];
+
+  const quickActions = [
+    { label: 'Create Course', icon: Plus, href: '/instructor/create-course', color: 'bg-gradient-primary' },
+    { label: 'Set Quiz', icon: ClipboardList, href: '/instructor/set-quiz', color: 'bg-gradient-secondary' },
+    { label: 'Schedule Course', icon: Calendar, href: '/instructor/schedule-course', color: 'bg-accent' },
+    { label: 'Analytics', icon: BarChart3, href: '/instructor/analytics', color: 'bg-success' },
+    { label: 'Complaints', icon: MessageSquare, href: '/instructor/complaints', color: 'bg-warning', badge: stats.pendingComplaints },
+    { label: 'Approve Edits', icon: UserCheck, href: '/instructor/approve-edits', color: 'bg-destructive', badge: stats.pendingEditRequests },
   ];
 
   const upcomingSessions = [
@@ -31,7 +124,9 @@ export const InstructorDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="outline">Profile</Button>
+          <Link to="/instructor-profile">
+            <Button variant="outline">Profile</Button>
+          </Link>
           <Button variant="destructive" onClick={logout}>
             Logout
           </Button>
@@ -40,7 +135,7 @@ export const InstructorDashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
+        {statsDisplay.map((stat, index) => (
           <GlassCard key={index} variant="intense" className="text-center">
             <div className="flex items-center justify-center mb-4">
               <div className={`p-3 rounded-xl glass ${stat.color}`}>
@@ -56,54 +151,28 @@ export const InstructorDashboard: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <GlassCard variant="glow" className="glass-hover cursor-pointer">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-4 rounded-2xl bg-gradient-primary text-primary-foreground">
-                <Plus size={28} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {quickActions.map((action, index) => (
+          <Link key={index} to={action.href}>
+            <GlassCard variant="glow" className="glass-hover cursor-pointer relative">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-4 rounded-2xl ${action.color} text-white relative`}>
+                    <action.icon size={28} />
+                    {action.badge && action.badge > 0 && (
+                      <div className="absolute -top-2 -right-2 h-6 w-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs font-bold">
+                        {action.badge}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <h3 className="text-lg font-semibold text-glass-foreground">
+                  {action.label}
+                </h3>
               </div>
-            </div>
-            <h3 className="text-lg font-semibold text-glass-foreground">
-              Create Session
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Start a new class session
-            </p>
-          </div>
-        </GlassCard>
-
-        <GlassCard variant="glow" className="glass-hover cursor-pointer">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-4 rounded-2xl bg-gradient-secondary text-secondary-foreground">
-                <BookOpen size={28} />
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-glass-foreground">
-              Question Banks
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage quiz questions
-            </p>
-          </div>
-        </GlassCard>
-
-        <GlassCard variant="glow" className="glass-hover cursor-pointer">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-4 rounded-2xl bg-accent text-accent-foreground">
-                <BarChart3 size={28} />
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-glass-foreground">
-              Analytics
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              View detailed reports
-            </p>
-          </div>
-        </GlassCard>
+            </GlassCard>
+          </Link>
+        ))}
       </div>
 
       {/* Today's Schedule & Recent Activity */}
