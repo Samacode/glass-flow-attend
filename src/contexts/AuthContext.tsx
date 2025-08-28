@@ -22,6 +22,12 @@ export const useAuth = () => {
   return context;
 };
 
+// Add a safe version for debugging
+export const useAuthSafe = () => {
+  const context = useContext(AuthContext);
+  return context;
+};
+
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -29,6 +35,18 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Ensure database is initialized
+  useEffect(() => {
+    const initDatabase = async () => {
+      try {
+        await db.open();
+      } catch (error) {
+        console.error('Database initialization error:', error);
+      }
+    };
+    initDatabase();
+  }, []);
 
   // Check for stored session on mount
   useEffect(() => {
