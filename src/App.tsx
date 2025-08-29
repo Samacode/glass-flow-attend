@@ -20,6 +20,7 @@ import { QuickCheckIn } from "./pages/student/QuickCheckIn";
 import { Progress } from "./pages/student/Progress";
 import { Schedule } from "./pages/student/Schedule";
 import { StudentProfile } from "./pages/student/Profile";
+import { Analytics } from "./pages/instructor/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/instructor/schedule-course" element={<ScheduleCourse />} />
             <Route path="/instructor/complaints" element={<Complaints />} />
             <Route path="/instructor/approve-edits" element={<ApproveEdits />} />
+            <Route path="/instructor/analytics" element={<Analytics />} />
             <Route path="/student/quick-checkin" element={<QuickCheckIn />} />
             <Route path="/student/progress" element={<Progress />} />
             <Route path="/student/schedule" element={<Schedule />} />
