@@ -273,7 +273,10 @@ export const SetQuiz: React.FC = () => {
             <div className="space-y-2">
               <Label htmlFor="course" className="text-glass-foreground font-medium">Course</Label>
               <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                <SelectTrigger className="glass border-glass-border/30 bg-glass/5 text-glass-foreground">
+                <SelectTrigger 
+                  className="glass border-glass-border/30 bg-glass/5 text-glass-foreground"
+                  disabled={courses.length === 0}
+                >
                   <SelectValue placeholder={courses.length > 0 ? "Select course" : "No courses available"} />
                 </SelectTrigger>
                 <SelectContent className="glass border-glass-border/30 bg-glass text-glass-foreground">
@@ -282,11 +285,6 @@ export const SetQuiz: React.FC = () => {
                       {course.name} ({course.code})
                     </SelectItem>
                   ))}
-                  {courses.length === 0 && (
-                    <SelectItem value="no-courses" disabled>
-                      No courses available
-                    </SelectItem>
-                  )}
                 </SelectContent>
               </Select>
               {courses.length === 0 && (
