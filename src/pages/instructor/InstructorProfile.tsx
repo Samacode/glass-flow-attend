@@ -14,8 +14,7 @@ export const InstructorProfile: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: '',
-    department: ''
+    email: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,8 +23,7 @@ export const InstructorProfile: React.FC = () => {
       setFormData({
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        department: user.department || ''
+        email: user.email
       });
     }
   }, [user]);
@@ -40,8 +38,7 @@ export const InstructorProfile: React.FC = () => {
       const success = await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: formData.email,
-        department: formData.department || undefined
+        email: formData.email
       });
 
       if (success) {
@@ -68,8 +65,7 @@ export const InstructorProfile: React.FC = () => {
       setFormData({
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        department: user.department || ''
+        email: user.email
       });
     }
     setIsEditing(false);
@@ -169,17 +165,15 @@ export const InstructorProfile: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="department" className="text-glass-foreground font-medium">
-                Department
-              </Label>
+              <Label className="text-glass-foreground font-medium">Department</Label>
               <Input
-                id="department"
-                value={formData.department}
-                onChange={(e) => handleInputChange('department', e.target.value)}
-                disabled={!isEditing}
-                placeholder="Your Department"
+                value={user.department || 'Not specified'}
+                disabled
                 className="glass border-glass-border/30 bg-glass/5 text-glass-foreground disabled:opacity-60"
               />
+              <p className="text-xs text-muted-foreground">
+                Department cannot be changed. Contact administration for department updates.
+              </p>
             </div>
 
             <div className="border-t border-glass-border/20 pt-6">

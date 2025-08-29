@@ -98,16 +98,21 @@ export const ApproveEdits: React.FC = () => {
         receiverId: selectedRequest.senderId,
         type: 'general',
         subject: 'Profile Edit Request Approved',
-        content: `Your profile edit request has been approved. You can now edit your profile once. After saving or canceling, you will need to request approval again for future edits.`,
+        content: `Your profile edit request has been approved by ${user!.firstName} ${user!.lastName}. You can now edit your profile information. Please note that you cannot edit your department - contact administration if department changes are needed.`,
         status: 'pending',
-        metadata: { editApproved: true, oneTimeEdit: true },
+        metadata: { 
+          editApproved: true, 
+          oneTimeEdit: true,
+          approvedBy: user!.id,
+          approvedAt: new Date().toISOString()
+        },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
 
       toast({
         title: "Request Approved",
-        description: "The profile edit request has been approved and the student has been notified",
+        description: `Profile edit request approved for ${selectedRequest.senderName}`,
       });
 
       setShowDetailsDialog(false);
@@ -142,16 +147,20 @@ export const ApproveEdits: React.FC = () => {
         receiverId: selectedRequest.senderId,
         type: 'general',
         subject: 'Profile Edit Request Denied',
-        content: `Your profile edit request has been denied. If you believe this is an error, please contact your instructor or submit a new request with more details.`,
+        content: `Your profile edit request has been denied by ${user!.firstName} ${user!.lastName}. If you believe this is an error, please contact your instructor or submit a new request with more details.`,
         status: 'pending',
-        metadata: { editApproved: false },
+        metadata: { 
+          editApproved: false,
+          deniedBy: user!.id,
+          deniedAt: new Date().toISOString()
+        },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
 
       toast({
         title: "Request Denied",
-        description: "The profile edit request has been denied and the student has been notified",
+        description: `Profile edit request denied for ${selectedRequest.senderName}`,
       });
 
       setShowDetailsDialog(false);

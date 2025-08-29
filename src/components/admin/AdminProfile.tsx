@@ -14,8 +14,7 @@ export const AdminProfile: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: '',
-    department: ''
+    email: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,8 +23,7 @@ export const AdminProfile: React.FC = () => {
       setFormData({
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        department: user.department || ''
+        email: user.email
       });
     }
   }, [user]);
@@ -40,8 +38,7 @@ export const AdminProfile: React.FC = () => {
       const success = await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: formData.email,
-        department: formData.department || undefined
+        email: formData.email
       });
 
       if (success) {
@@ -68,8 +65,7 @@ export const AdminProfile: React.FC = () => {
       setFormData({
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        department: user.department || ''
+        email: user.email
       });
     }
     setIsEditing(false);
@@ -164,20 +160,6 @@ export const AdminProfile: React.FC = () => {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 disabled={!isEditing}
-                className="glass border-glass-border/30 bg-glass/5 text-glass-foreground disabled:opacity-60"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="department" className="text-glass-foreground font-medium">
-                Department
-              </Label>
-              <Input
-                id="department"
-                value={formData.department}
-                onChange={(e) => handleInputChange('department', e.target.value)}
-                disabled={!isEditing}
-                placeholder="Administration"
                 className="glass border-glass-border/30 bg-glass/5 text-glass-foreground disabled:opacity-60"
               />
             </div>

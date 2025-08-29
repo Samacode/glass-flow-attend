@@ -75,26 +75,9 @@ export const StudentProfile: React.FC = () => {
           status: 'pending',
           metadata: {
             studentId: user!.id,
-            requestedAt: new Date().toISOString()
-          },
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-      }
-
-      // Also send to admin
-      const admin = await db.users.where('role').equals('admin').first();
-      if (admin) {
-        await db.messages.add({
-          senderId: user!.id!,
-          receiverId: admin.id!,
-          type: 'profile_edit_request',
-          subject: 'Student Profile Edit Request',
-          content: `Student: ${user!.firstName} ${user!.lastName} (${user!.email})\n\nReason for edit request:\n${editReason}`,
-          status: 'pending',
-          metadata: {
-            studentId: user!.id,
-            requestedAt: new Date().toISOString()
+            requestedAt: new Date().toISOString(),
+            studentName: `${user!.firstName} ${user!.lastName}`,
+            studentEmail: user!.email
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -205,6 +188,9 @@ export const StudentProfile: React.FC = () => {
                 disabled
                 className="glass border-glass-border/30 bg-glass/5 text-glass-foreground disabled:opacity-60"
               />
+              <p className="text-xs text-muted-foreground">
+                Department cannot be changed. Contact administration for department updates.
+              </p>
             </div>
 
             <div className="border-t border-glass-border/20 pt-6">
