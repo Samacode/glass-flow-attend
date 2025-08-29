@@ -40,7 +40,11 @@ export const SetQuiz: React.FC = () => {
     if (!user?.id) return;
     
     try {
-      const instructorCourses = await db.courses.where('instructorId').equals(user.id).toArray();
+      // Only load courses created by this instructor
+      const instructorCourses = await db.courses
+        .where('instructorId')
+        .equals(user.id)
+        .toArray();
       setCourses(instructorCourses);
     } catch (error) {
       console.error('Error loading courses:', error);
@@ -270,7 +274,7 @@ export const SetQuiz: React.FC = () => {
               <Label htmlFor="course" className="text-glass-foreground font-medium">Course</Label>
               <Select value={selectedCourse} onValueChange={setSelectedCourse}>
                 <SelectTrigger className="glass border-glass-border/30 bg-glass/5 text-glass-foreground">
-                  <SelectValue placeholder="Select course" />
+                  <SelectValue placeholder={courses.length > 0 ? "Select course" : "No courses available"} />
                 </SelectTrigger>
                 <SelectContent className="glass border-glass-border/30 bg-glass text-glass-foreground">
                   {courses.map((course) => (
@@ -278,8 +282,21 @@ export const SetQuiz: React.FC = () => {
                       {course.name} ({course.code})
                     </SelectItem>
                   ))}
+                  {courses.length === 0 && (
+                    <SelectItem value="no-courses" disabled>
+                      No courses available
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
+              {courses.length === 0 && (
+                <p className="text-sm text-warning mt-1">
+                  You need to create a course first before setting quizzes.{' '}
+                  <Link to="/instructor/create-course" className="underline">
+                    Create Course
+                  </Link>
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -327,7 +344,7 @@ export const SetQuiz: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={generateAutoQuiz}
-                disabled={isLoading || !selectedCourse}
+                disabled={isLoading || !selectedCourse || courses.length === 0}
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent" />
@@ -504,7 +521,7 @@ export const SetQuiz: React.FC = () => {
               variant="primary"
               size="lg"
               onClick={saveQuiz}
-              disabled={isLoading}
+              disabled={isLoading || courses.length === 0}
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent" />

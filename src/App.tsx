@@ -53,7 +53,7 @@ const App = () => (
             <Route path="/student/progress" element={<Progress />} />
             <Route path="/student/schedule" element={<Schedule />} />
             <Route path="/student/profile" element={<StudentProfile />} />
-            <Route path="/system-settings" element={<SystemSettings />} />
+            <Route path="/admin/system-settings" element={<SystemSettings />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/security" element={<SecuritySettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

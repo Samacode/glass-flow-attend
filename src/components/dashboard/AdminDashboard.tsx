@@ -52,7 +52,7 @@ export const AdminDashboard: React.FC = () => {
 
   const quickActions = [
     { label: 'User Management', icon: Users, href: '/user-management' },
-    { label: 'System Settings', icon: Settings, href: '/system-settings' },
+    { label: 'System Settings', icon: Settings, href: '/admin/system-settings' },
     { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
     { label: 'Security', icon: Shield, href: '/security' },
   ];

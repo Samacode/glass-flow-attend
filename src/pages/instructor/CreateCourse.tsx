@@ -92,22 +92,29 @@ export const CreateCourse: React.FC = () => {
   };
 
   const handleCreateCourse = async () => {
-    if (!selectedCourse || !user?.id) return;
+    if (!customDetails.name || !customDetails.code || !user?.id) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in course name and code",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
       // Check if course already exists
       const existingCourse = await db.courses
         .where('code').equals(customDetails.code)
-        .and(course => course.instructorId === user.id)
         .first();
 
       if (existingCourse) {
         toast({
           title: "Course Exists",
-          description: "You already have a course with this code",
+          description: "A course with this code already exists",
           variant: "destructive"
         });
+        setIsLoading(false);
         return;
       }
 
