@@ -200,7 +200,7 @@ export class AttendanceDB extends Dexie {
     
     this.version(2).stores({
       users: '++id, email, role, isApproved, createdAt',
-      courses: '++id, instructorId, departmentId, createdAt',
+      courses: '++id, code, instructorId, departmentId, createdAt',
       departments: '++id, name, code, createdAt',
       classSessions: '++id, courseId, instructorId, date, isActive, createdAt',
       attendanceRecords: '++id, sessionId, studentId, status, createdAt',
