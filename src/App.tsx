@@ -21,6 +21,10 @@ import { Progress } from "./pages/student/Progress";
 import { Schedule } from "./pages/student/Schedule";
 import { StudentProfile } from "./pages/student/Profile";
 import { Analytics } from "./pages/instructor/Analytics";
+import { InstructorProfile } from "./pages/instructor/InstructorProfile";
+import { SystemSettings } from "./pages/admin/SystemSettings";
+import { AdminAnalytics } from "./pages/admin/AdminAnalytics";
+import { SecuritySettings } from "./pages/admin/SecuritySettings";
 
 const queryClient = new QueryClient();
 
@@ -44,10 +48,14 @@ const App = () => (
             <Route path="/instructor/complaints" element={<Complaints />} />
             <Route path="/instructor/approve-edits" element={<ApproveEdits />} />
             <Route path="/instructor/analytics" element={<Analytics />} />
+            <Route path="/instructor/profile" element={<InstructorProfile />} />
             <Route path="/student/quick-checkin" element={<QuickCheckIn />} />
             <Route path="/student/progress" element={<Progress />} />
             <Route path="/student/schedule" element={<Schedule />} />
             <Route path="/student/profile" element={<StudentProfile />} />
+            <Route path="/system-settings" element={<SystemSettings />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/security" element={<SecuritySettings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

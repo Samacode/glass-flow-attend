@@ -36,7 +36,11 @@ export const CreateCourse: React.FC = () => {
   }, [user]);
 
   const loadAvailableCourses = async () => {
-    if (!user?.department) return;
+    if (!user?.department) {
+      // If no department is set, show a generic message
+      setAvailableCourses([]);
+      return;
+    }
 
     // Generate standard university courses based on instructor's department
     const courseTemplates: CourseTemplate[] = [];
@@ -44,34 +48,34 @@ export const CreateCourse: React.FC = () => {
     switch (user.department) {
       case 'Computer Science':
         courseTemplates.push(
-          { id: 'cs101', name: 'Introduction to Programming', code: 'CS 101', description: 'Basic programming concepts and problem-solving techniques', credits: 3, department: 'Computer Science' },
-          { id: 'cs201', name: 'Data Structures and Algorithms', code: 'CS 201', description: 'Fundamental data structures and algorithmic techniques', credits: 4, department: 'Computer Science' },
-          { id: 'cs301', name: 'Database Systems', code: 'CS 301', description: 'Database design, implementation, and management', credits: 3, department: 'Computer Science' },
-          { id: 'cs401', name: 'Software Engineering', code: 'CS 401', description: 'Software development methodologies and project management', credits: 4, department: 'Computer Science' },
-          { id: 'cs501', name: 'Machine Learning', code: 'CS 501', description: 'Introduction to machine learning algorithms and applications', credits: 3, department: 'Computer Science' }
+          { id: 'cs101', name: 'Introduction to Programming', code: 'CS-101', description: 'Basic programming concepts and problem-solving techniques', credits: 3, department: 'Computer Science' },
+          { id: 'cs201', name: 'Data Structures and Algorithms', code: 'CS-201', description: 'Fundamental data structures and algorithmic techniques', credits: 4, department: 'Computer Science' },
+          { id: 'cs301', name: 'Database Systems', code: 'CS-301', description: 'Database design, implementation, and management', credits: 3, department: 'Computer Science' },
+          { id: 'cs401', name: 'Software Engineering', code: 'CS-401', description: 'Software development methodologies and project management', credits: 4, department: 'Computer Science' },
+          { id: 'cs501', name: 'Machine Learning', code: 'CS-501', description: 'Introduction to machine learning algorithms and applications', credits: 3, department: 'Computer Science' }
         );
         break;
       case 'Engineering':
         courseTemplates.push(
-          { id: 'eng101', name: 'Engineering Mathematics I', code: 'ENG 101', description: 'Calculus and linear algebra for engineers', credits: 4, department: 'Engineering' },
-          { id: 'eng201', name: 'Thermodynamics', code: 'ENG 201', description: 'Principles of thermodynamics and heat transfer', credits: 3, department: 'Engineering' },
-          { id: 'eng301', name: 'Fluid Mechanics', code: 'ENG 301', description: 'Fluid statics and dynamics', credits: 3, department: 'Engineering' },
-          { id: 'eng401', name: 'Control Systems', code: 'ENG 401', description: 'Analysis and design of control systems', credits: 4, department: 'Engineering' }
+          { id: 'eng101', name: 'Engineering Mathematics I', code: 'ENG-101', description: 'Calculus and linear algebra for engineers', credits: 4, department: 'Engineering' },
+          { id: 'eng201', name: 'Thermodynamics', code: 'ENG-201', description: 'Principles of thermodynamics and heat transfer', credits: 3, department: 'Engineering' },
+          { id: 'eng301', name: 'Fluid Mechanics', code: 'ENG-301', description: 'Fluid statics and dynamics', credits: 3, department: 'Engineering' },
+          { id: 'eng401', name: 'Control Systems', code: 'ENG-401', description: 'Analysis and design of control systems', credits: 4, department: 'Engineering' }
         );
         break;
       case 'Business Administration':
         courseTemplates.push(
-          { id: 'bus101', name: 'Principles of Management', code: 'BUS 101', description: 'Fundamentals of business management', credits: 3, department: 'Business Administration' },
-          { id: 'bus201', name: 'Marketing Fundamentals', code: 'BUS 201', description: 'Basic marketing concepts and strategies', credits: 3, department: 'Business Administration' },
-          { id: 'bus301', name: 'Financial Management', code: 'BUS 301', description: 'Corporate finance and investment decisions', credits: 4, department: 'Business Administration' },
-          { id: 'bus401', name: 'Strategic Management', code: 'BUS 401', description: 'Strategic planning and competitive analysis', credits: 3, department: 'Business Administration' }
+          { id: 'bus101', name: 'Principles of Management', code: 'BUS-101', description: 'Fundamentals of business management', credits: 3, department: 'Business Administration' },
+          { id: 'bus201', name: 'Marketing Fundamentals', code: 'BUS-201', description: 'Basic marketing concepts and strategies', credits: 3, department: 'Business Administration' },
+          { id: 'bus301', name: 'Financial Management', code: 'BUS-301', description: 'Corporate finance and investment decisions', credits: 4, department: 'Business Administration' },
+          { id: 'bus401', name: 'Strategic Management', code: 'BUS-401', description: 'Strategic planning and competitive analysis', credits: 3, department: 'Business Administration' }
         );
         break;
       default:
         courseTemplates.push(
-          { id: 'gen101', name: 'Introduction to ' + user.department, code: 'GEN 101', description: 'Foundational concepts in ' + user.department, credits: 3, department: user.department },
-          { id: 'gen201', name: 'Intermediate ' + user.department, code: 'GEN 201', description: 'Intermediate level concepts and applications', credits: 3, department: user.department },
-          { id: 'gen301', name: 'Advanced ' + user.department, code: 'GEN 301', description: 'Advanced topics and research methods', credits: 4, department: user.department }
+          { id: 'gen101', name: 'Introduction to ' + user.department, code: 'GEN-101', description: 'Foundational concepts in ' + user.department, credits: 3, department: user.department },
+          { id: 'gen201', name: 'Intermediate ' + user.department, code: 'GEN-201', description: 'Intermediate level concepts and applications', credits: 3, department: user.department },
+          { id: 'gen301', name: 'Advanced ' + user.department, code: 'GEN-301', description: 'Advanced topics and research methods', credits: 4, department: user.department }
         );
     }
 

@@ -124,7 +124,7 @@ export const InstructorDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <Link to="/instructor-profile">
+          <Link to="/instructor/profile">
             <Button variant="outline">Profile</Button>
           </Link>
           <Button variant="destructive" onClick={logout}>
