@@ -280,9 +280,6 @@ export const SetQuiz: React.FC = () => {
                   <SelectValue placeholder={courses.length > 0 ? "Select course" : "No courses available"} />
                 </SelectTrigger>
                 <SelectContent className="glass border-glass-border/30 bg-glass text-glass-foreground">
-                  <SelectItem value="" disabled>
-                    {courses.length > 0 ? "Select course" : "No courses available"}
-                  </SelectItem>
                   {courses.map((course) => (
                     <SelectItem key={course.id} value={course.id!.toString()}>
                       {course.name} ({course.code})
@@ -473,7 +470,7 @@ export const SetQuiz: React.FC = () => {
                             <SelectValue placeholder="Select correct answer" />
                           </SelectTrigger>
                           <SelectContent className="glass border-glass-border/30 bg-glass text-glass-foreground">
-                            {question.options?.map((option, optionIndex) => (
+                            {question.options?.filter(option => option.trim() !== '').map((option, optionIndex) => (
                               <SelectItem key={optionIndex} value={option}>
                                 {String.fromCharCode(65 + optionIndex)}. {option}
                               </SelectItem>
