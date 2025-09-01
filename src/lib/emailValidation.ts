@@ -1,5 +1,6 @@
 // Email validation utility
 const ALLOWED_EMAIL_DOMAINS = [
+  'coou.com',
   'gmail.com',
   'yahoo.com',
   'outlook.com',
@@ -34,7 +35,7 @@ export const validateEmail = (email: string): { isValid: boolean; message?: stri
   if (!ALLOWED_EMAIL_DOMAINS.includes(domain)) {
     return { 
       isValid: false, 
-      message: `Email domain @${domain} is not allowed. Please use an official email provider like Gmail, Yahoo, Outlook, etc.` 
+      message: `Email domain @${domain} is not allowed. Please use COOU email (@coou.com) or an official email provider like Gmail, Yahoo, Outlook, etc.` 
     };
   }
 
